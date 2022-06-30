@@ -1,5 +1,5 @@
-Send messages from mit.dk to your own e-mail
-============================================
+Download all messages from post.borger.dk
+=========================================
 
 This utility lets you log in to https://post.borger.dk and download all messages to the same folder as the program.
 

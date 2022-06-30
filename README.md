@@ -1,9 +1,9 @@
 Send messages from mit.dk to your own e-mail
 ============================================
 
-This utility lets you log in to post.borger.dk and download all mail to the same folder as the program.
+This utility lets you log in to https://post.borger.dk and download all messages to the same folder as the program.
 
-The program will try to keep the authorization for post.borger.dk alive, but is currently not able to work for more than approximately an hour. If your mailbox takes more than an hour to download, you will need to modify the API queries for subsequent runs to be able to download everything.
+The program will try to keep the authorization for https://post.borger.dk alive, but is currently not able to work for more than approximately an hour. If your mailbox takes more than an hour to download, you will need to modify the API queries for subsequent runs to be able to download everything.
 
 Requirements
 ============

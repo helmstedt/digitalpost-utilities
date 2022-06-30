@@ -10,7 +10,7 @@ Requirements
 * A Danish NemID or MitID login for access to post.borger.dk.
 * `digitalpost_fetch_all.py` from this repository.
 * Python and the packages `seleniumwire`, `requests`, `python-slugify` and `beautifulsoup4`.
-* A computer with a desktop browser. The program is set up for Chrome, but can be modified to work with e.g. Firefox.
+* A modern graphical browser running JavaScript. The program is set up for Chrome, but can be modified to work with e.g. Firefox.
 * A webdriver to run and monitor your browser from a Python script. If running Chrome, get `chromedriver.exe` from https://chromedriver.chromium.org/ and put it in your PATH or at the same location as `digitalpost_fetch_all.py`.
 
 Steps to run

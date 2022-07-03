@@ -51,5 +51,4 @@ def poll_and_renew_authorization(session):
                     break        
         with open(cookies_filename, 'wb') as cookie_file:
             pickle.dump(session.cookies, cookie_file)
-        print('Auth succeeded')
         return session       

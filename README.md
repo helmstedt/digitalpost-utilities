@@ -36,7 +36,7 @@ Step two
 
 * Run `post_borger_dk_first_login.py` on a computer with a desktop browser. The program is set up to work with Chrome and `chromedriver.exe`.
 * The program will open a browser window where you'll need to log on to post.borger.dk with your NemID or MitID.
-* If your login is successfull, the program will save access tokens for post.borger.dk to `post_borger_dk_cookies`
+* If your login is successful, the program will save access tokens for post.borger.dk to `post_borger_dk_cookies`
 
 Step three
 ----------

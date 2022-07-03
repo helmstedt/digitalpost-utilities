@@ -49,7 +49,7 @@ Step three
 A note on security
 ==================
 
-Keep your cookie file (default filename is `post_borger_dk_cookies`) somewhere only you can access as the file can be used to access your Digital Post messages and possibly also other services with NemID/MitID authorization.
+Keep your cookie file (default filename is `post_borger_dk_cookies`) somewhere only you can access. The file can be used to access your Digital Post messages and possibly also other services with NemID/MitID authorization.
 
 Questions?
 ==========

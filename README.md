@@ -11,7 +11,7 @@ Requirements
 * A Danish NemID or MitID login for access to post.borger.dk.
 * Python and the packages `seleniumwire`, `requests`, `python-slugify` and `beautifulsoup4`.
 * A modern graphical browser with JavaScript enabled. The program is set up for Chrome, but can be modified to work with e.g. Firefox.
-* A webdriver to run and monitor your browser from a Python script. If running Chrome, get `chromedriver.exe` from https://chromedriver.chromium.org/ and put it in your PATH or at the same location as `digitalpost_fetch_all.py`.
+* A webdriver to run and monitor your browser from a Python script. If running Chrome, get `chromedriver.exe` from https://chromedriver.chromium.org/ and put it in your PATH or at the same location as these utilities.
 * For checking new messages and sending them to e-mail, a server, service or PC that's on 24/7 to monitor for new mails and keep your login active.
 * For checking new messages and sending them to e-mail, an e-mail address and the ability to send e-mails using SMTP.
 

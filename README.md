@@ -23,8 +23,8 @@ Steps to download all messages
 * After completing your browser login, press ENTER in your terminal
 * Wait for the script to download your messages
 
-Set up a task to send unread messages to an e-mail address of your choosing
-===========================================================================
+Steps to set up a task to send unread messages to an e-mail address of your choosing
+====================================================================================
 
 Step one
 --------

@@ -79,7 +79,7 @@ for mailbox in mailboxes['mailboxes']:
                             part = MIMEApplication(file_content.content)
                             part.add_header('Content-Disposition', 'attachment', filename=filename)
                             msg.attach(part)
-                print(f'Sender en mail fra post.borger.dk fra {sender} med emnet {label}')
+                print(f'Sending an e-mail from post.borger.dk from {sender} with the subject {label}')
                 server.sendmail(email_data['emailfrom'], email_data['emailto'], msg.as_string())
                 mark_message_as_read(session, mailbox_id, message_id, version)        
                         

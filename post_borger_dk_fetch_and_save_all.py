@@ -30,6 +30,11 @@ def time_to_renew(start_time, session):
     if execution_time > 60:
         session = post_borger_dk_poll_and_renew.poll_and_renew_authorization(session)
         start_time = time.time()
+        try:
+            with open(cookies_filename, 'wb') as cookie_file:
+                pickle.dump(session.cookies, cookie_file)
+        except:
+            print('Could not save cookie file.')
     return start_time, session
 
 ### API REQUESTS ###

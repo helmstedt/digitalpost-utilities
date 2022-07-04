@@ -1,7 +1,6 @@
 # Check and renew auth on post.borger.dk.
 from bs4 import BeautifulSoup
-import pickle
-from post_borger_dk_configuration import cookies_filename
+import http.cookies
 
 def set_poll_headers(session):
     session.headers['X-XSRF-TOKEN'] = session.cookies['XSRF-REQUEST-TOKEN']
@@ -17,41 +16,61 @@ def delete_poll_headers(session):
 
 def poll_and_renew_authorization(session):
     poll_success = True
-    session = set_poll_headers(session)
+    set_poll_headers(session)
     poll = session.get('https://auth.post.borger.dk/web/auth/poll')
     if poll.status_code == 204:
+        delete_poll_headers(session)
         return session 
     elif poll.status_code == 401:
-        poll_success = False        
+        poll_success = False
+    else:
+        print('Unknown error occured during poll.')
     if poll_success == False:
-        session = delete_poll_headers(session)
-        renew = session.get('https://auth.post.borger.dk/web/auth/login?returnurl=https://post.borger.dk')
-        if 'https://nemlog-in.mitid.dk/adfs/ls/?SAMLRequest=' in renew.url:
-            fobs = session.get('https://idp.fobs.dk/write.aspx')
-            soup = BeautifulSoup(renew.text, "html.parser")
-            input = soup.find_all('input', {"name":"SAMLResponse"})
-            samlresponse = input[0]["value"]
-            auth_request = session.post('https://gateway.digitalpost.dk/auth/s9/nemlogin/ssoack', data={'SAMLResponse': samlresponse})
-            # Fix for a duplicate cookie issue causing auth to fail. Ensures no duplicates.
-            for request in auth_request.history:
-                if 'https://gateway.digitalpost.dk/auth/oauth/authorize?client_id=borger-dk-web-post-visningsklient-oidc-prod-id' in request.url:
-                    del session.cookies['QueueITAccepted-SDFrts345E-V3_prod01']
-                    new_cookies = request.headers['Set-Cookie'].split(';,')
-                    for cookie in new_cookies:
-                        if 'QueueITAccepted' in cookie:
-                            real_cookie = http.cookies.BaseCookie(cookie)
-                            for key in real_cookie.keys():
-                                if 'expires' in real_cookie[key]:
-                                    expiry = real_cookie[key]['expires']
-                                    if expiry:
-                                        expiry_list = list(expiry)
-                                        expiry_list[7] = '-'
-                                        expiry_list[11] = '-'
-                                        real_cookie[key]['expires'] = ''.join(expiry_list)
-                            session.cookies.update(real_cookie)
-                            break
-                    break        
-        with open(cookies_filename, 'wb') as cookie_file:
-            pickle.dump(session.cookies, cookie_file)
-        return session
+        delete_poll_headers(session)
+        renew_step_one = session.get('https://auth.post.borger.dk/web/auth/login?returnurl=https://post.borger.dk', allow_redirects=False)
+        step_one_redirect_location = renew_step_one.headers['Location']
+        renew_step_two = session.get(step_one_redirect_location, allow_redirects=False)
+        # Two different codes depending on simple or complex scenario
+        if renew_step_two.status_code == 303 or renew_step_two.status_code == 302:
+            step_two_redirect_location = renew_step_two.headers['Location']
+            # Simple auth without nemlog-in reauthorization
+            if 'https://auth.post.borger.dk/signin-oidc' in step_two_redirect_location:
+                renew_step_three = session.get(step_two_redirect_location, allow_redirects=False)
+                step_three_redirect_location = renew_step_three.headers['Location']
+                renew_step_four = session.get(step_three_redirect_location, allow_redirects=False)
+            # Complex auth with nemlog-in reauthorization
+            elif 'https://login.nemlog-in.dk/adfs/ls/?SAMLRequest=' in step_two_redirect_location:
+                renew_step_three = session.get(step_two_redirect_location, allow_redirects=False)
+                step_three_redirect_location = renew_step_three.headers['Location']
+                renew_step_four = session.get(step_three_redirect_location, allow_redirects=False)
+                fobs = session.get('https://idp.fobs.dk/write.aspx')
+                soup = BeautifulSoup(renew_step_four.text, "html.parser")
+                input = soup.find_all('input', {"name":"SAMLResponse"})
+                samlresponse = input[0]["value"]
+                renew_step_five = session.post('https://gateway.digitalpost.dk/auth/s9/nemlogin/ssoack', data={'SAMLResponse': samlresponse}, allow_redirects=False)
+                step_five_redirect_location = renew_step_five.headers['Location']
+                renew_step_six = session.get(step_five_redirect_location, allow_redirects=False)
+                # Duplicate cookie fix
+                del session.cookies['QueueITAccepted-SDFrts345E-V3_prod01']
+                new_cookies = renew_step_six.headers['Set-Cookie'].split(';,')
+                for cookie in new_cookies:
+                    if 'QueueITAccepted' in cookie:
+                        real_cookie = http.cookies.BaseCookie(cookie)
+                        for key in real_cookie.keys():
+                            if 'expires' in real_cookie[key]:
+                                expiry = real_cookie[key]['expires']
+                                if expiry:
+                                    expiry_list = list(expiry)
+                                    expiry_list[7] = '-'
+                                    expiry_list[11] = '-'
+                                    real_cookie[key]['expires'] = ''.join(expiry_list)
+                        session.cookies.update(real_cookie)
+                step_six_redirect_location = renew_step_six.headers['Location']
+                renew_step_seven = session.get(step_six_redirect_location, allow_redirects=False)
+                step_seven_redirect_location = renew_step_seven.headers['Location']
+                renew_step_eight = session.get(step_seven_redirect_location, allow_redirects=False)
+            else:
+                print('Something went wrong renewing authorization at or after step three.')
+        else:
+            print('Something went wrong renewing authorization at or before step two.')
     return session        

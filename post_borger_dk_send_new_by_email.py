@@ -82,4 +82,10 @@ for mailbox in mailboxes['mailboxes']:
                 print(f'Sending an e-mail from post.borger.dk from {sender} with the subject {label}')
                 server.sendmail(email_data['emailfrom'], email_data['emailto'], msg.as_string())
                 mark_message_as_read(session, mailbox_id, message_id, version)        
-                        
+
+try:
+    with open(cookies_filename, 'wb') as cookie_file:
+        pickle.dump(session.cookies, cookie_file)
+except:
+    print('Could not save cookie file.')
+

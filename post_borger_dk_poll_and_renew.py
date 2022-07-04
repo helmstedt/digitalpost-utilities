@@ -7,22 +7,24 @@ def set_poll_headers(session):
     session.headers['X-XSRF-TOKEN'] = session.cookies['XSRF-REQUEST-TOKEN']
     session.headers['CorrelationId'] = session.cookies['CorrelationId']
     session.headers['RequestIdKey'] = session.cookies['CorrelationId']
+    return session
 
 def delete_poll_headers(session):
     del session.headers['X-XSRF-TOKEN']
     del session.headers['CorrelationId']
     del session.headers['RequestIdKey']
+    return session
 
 def poll_and_renew_authorization(session):
     poll_success = True
-    set_poll_headers(session)
+    session = set_poll_headers(session)
     poll = session.get('https://auth.post.borger.dk/web/auth/poll')
     if poll.status_code == 204:
         return session 
     elif poll.status_code == 401:
         poll_success = False        
     if poll_success == False:
-        delete_poll_headers(session)
+        session = delete_poll_headers(session)
         renew = session.get('https://auth.post.borger.dk/web/auth/login?returnurl=https://post.borger.dk')
         if 'https://nemlog-in.mitid.dk/adfs/ls/?SAMLRequest=' in renew.url:
             fobs = session.get('https://idp.fobs.dk/write.aspx')
@@ -51,4 +53,5 @@ def poll_and_renew_authorization(session):
                     break        
         with open(cookies_filename, 'wb') as cookie_file:
             pickle.dump(session.cookies, cookie_file)
-        return session       
+        return session
+    return session        

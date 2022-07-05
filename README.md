@@ -43,7 +43,7 @@ Step three
 
 * Immediately after completing step two, copy the files from the program directory (including `post_borger_dk_cookies`) to a computer or server that is on 24/7 (if this is your computer from step two, no need to copy anything.)
 * If necessary edit the `cookies_filename` variable in `post_borger_dk_configuration.py` to the full path of your `post_borger_dk_cookies` file
-* Run `post_borger_dk_send_new_by_email.py` at specific intervals to fetch messages from mit.dk and send them to your e-mail. I recommend somewhere around 1 and 2 minutes between each run. You can also try around 20 minutes as this is the usual interval for renewing authorization at post.borger.dk. The program refreshes cookies on each run if necessary.
+* Run `post_borger_dk_send_new_by_email.py` at specific intervals to fetch messages from mit.dk and send them to your e-mail. I recommend one minute between each run. You can also try around 20 minutes as this is the usual interval for renewing authorization at post.borger.dk. The program refreshes cookies on each run if necessary.
 * If running `post_borger_dk_send_new_by_email.py` on Linux, set up a CRON job to automate running the program. If running the program on Windows, use Task Scheduler.
 
 A note on security

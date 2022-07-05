@@ -1,5 +1,5 @@
 # Sends new messages from https://post.borger.dk to an e-mail address.
-# Run every 1-2 minutes to ensure authorization is renewed regularly.
+# Run every minute to ensure authorization is renewed regularly.
 import requests
 import pickle
 import smtplib										# Sending e-mails
@@ -23,6 +23,8 @@ try:
     session.headers['X-XSRF-TOKEN'] = session.cookies['XSRF-REQUEST-TOKEN']
 except requests.exceptions.TooManyRedirects:
     print('Could not renew authorization. Try running post_borger_dk_first_login.py to refresh cookie file.')
+except KeyError:
+    print('Could not set headers for API requests. Try running post_borger_dk_first_login.py to refresh cookie file.')
     
 mailserver_connect = False
 mailboxes = get_mailboxes(session)

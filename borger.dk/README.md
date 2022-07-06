@@ -26,6 +26,8 @@ Steps to download all messages
 Steps to set up a task to send unread messages to an e-mail address of your choosing
 ====================================================================================
 
+* Note: Currently I've only been able to run this for a limited number of hours. I will look into it.
+
 Step one
 --------
 

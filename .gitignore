@@ -1,6 +1,8 @@
 chromedriver.exe
 post_borger_dk_cookies
 post_borger_dk_configuration.py
+mitdk_tokens.json
+mit_dk_configuration.py
 development/
 
 # Byte-compiled / optimized / DLL files

@@ -80,8 +80,7 @@ for request in driver.requests:
             samlresponse = input[0]["value"]
 
 driver.close()
-
-request_code_part_one = session.post('https://gateway.digitalpost.dk/auth/s9/nemlogin/ssoack', data={'SAMLResponse': samlresponse}, allow_redirects=False)
+request_code_part_one = session.post('https://gateway.digitalpost.dk/auth/s9/mit-dk-nemlogin/ssoack', data={'SAMLResponse': samlresponse}, allow_redirects=False)
 request_code_part_one_redirect_location = request_code_part_one.headers['Location']
 request_code_part_two = session.get(request_code_part_one_redirect_location, allow_redirects=False)
 request_code_part_two_redirect_location = request_code_part_two.headers['Location']

@@ -200,7 +200,7 @@ if tokens:
                     part = MIMEApplication(content['file_content'].content)
                     part.add_header('Content-Disposition', 'attachment', filename=content['file_name'])
                     msg.attach(part) 
-                elif content['encoding_format'] == 'application/pdf':   
+                elif content['encoding_format'] == 'application/pdf' or content['encoding_format'] == 'text/xml':   
                     part = MIMEApplication(content['file_content'].content)
                     part.add_header('Content-Disposition', 'attachment', filename=content['file_name'])
                     msg.attach(part)

@@ -1,4 +1,4 @@
-tokens_filename = 'mitdk_tokens.json'
+tokens_filename = 'mit_dk_tokens.json'
 
 email_data = {
     'emailserver': '', 	    # Your mail server hostname, e.g. host.server.dk

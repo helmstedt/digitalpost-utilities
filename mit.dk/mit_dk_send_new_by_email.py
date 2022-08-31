@@ -61,7 +61,7 @@ def refresh_and_save_tokens(dppRefreshToken, ngdpRefreshToken):
     if not refresh.status_code == 200:
         print("Something went wrong trying to fetch new tokens.")
     refresh_json = refresh.json()
-    if 'code' in refresh_json:
+    if 'code' in refresh_json or 'status' in refresh_json:
         print("Something went wrong trying to fetch new tokens. Here's the response:")
         print(refresh_json)
         return False
@@ -91,7 +91,14 @@ def get_fresh_tokens_and_revoke_old_tokens():
     
 def get_simple_endpoint(endpoint):
     response = session.get(base_url + endpoint)
-    return response.json()
+    try:
+        response_json = response.json()
+        return response.json()
+    except:
+        print('Unable to convert response to json. Here is the response:')
+        print(response.text)
+        return False
+    
 
 def get_inbox_folders_and_build_query(mailbox_ids):
     endpoint = 'folders/query'
@@ -126,7 +133,13 @@ def get_messages(folders):
         'sortFields': ['receivedDateTime:DESC']
     }
     response = session.post(base_url + endpoint, json=json_data)    
-    return response.json()   
+    try:
+        response_json = response.json()
+        return response.json()
+    except:
+        print('Unable to convert response to json. Here is the response:')
+        print(response.text)
+        return False
 
 def get_content(message):
     content = []

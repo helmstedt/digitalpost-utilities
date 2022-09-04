@@ -7,6 +7,7 @@ from email.mime.text import MIMEText				# Attaching text to e-mails
 from email.mime.application import MIMEApplication	# Attaching files to e-mails
 from email.utils import formataddr					# Used for correct encoding of senders with special characters in name (e.g. Københavns Kommune)
 from mit_dk_configuration import email_data, tokens_filename
+import time
 
 base_url = 'https://gateway.mit.dk/view/client/'
 session = requests.Session()
@@ -90,14 +91,20 @@ def get_fresh_tokens_and_revoke_old_tokens():
         print('Unable to find tokens in token file. Try running mit_dk_first_login.py again.')
     
 def get_simple_endpoint(endpoint):
-    response = session.get(base_url + endpoint)
-    try:
-        response_json = response.json()
-        return response.json()
-    except:
-        print('Unable to convert response to json. Here is the response:')
+    tries = 1
+    while tries <= 3:
+        response = session.get(base_url + endpoint)
+        try:
+            response_json = response.json()
+            return response.json()
+        except:
+            tries += 1
+            time.sleep(1)
+            pass
+    if tries == 3:
+        print(f'Unable to convert response to json when getting endpoint {endpoint} after 3 tries. Here is the response:')
         print(response.text)
-        return False
+        return false
     
 
 def get_inbox_folders_and_build_query(mailbox_ids):
@@ -107,38 +114,51 @@ def get_inbox_folders_and_build_query(mailbox_ids):
     }
     for mailbox in mailbox_ids:
         json_data['mailboxes'][mailbox['dataSource']] = mailbox['mailboxId']
-    response = session.post(base_url + endpoint, json=json_data)    
-    try:
-        response_json = response.json()
-    except:
-        print('Unable to convert response to json. Here is the response:')
+    tries = 1
+    while tries <= 3:
+        response = session.post(base_url + endpoint, json=json_data)    
+        try:
+            response_json = response.json()
+            folders = []
+            for folder in response_json['folders']['INBOX']:
+                folder_info = {
+                    'dataSource': folder['dataSource'],
+                    'foldersId': [folder['id']],
+                    'mailboxId': folder['mailboxId'],
+                    'startIndex': 0
+                }
+                folders.append(folder_info)
+            return folders
+        except:
+            tries += 1
+            time.sleep(1)
+            pass
+    if tries == 3:
+        print('Unable to convert response to json when getting folders. Here is the response:')
         print(response.text)
-    folders = []
-    for folder in response_json['folders']['INBOX']:
-        folder_info = {
-            'dataSource': folder['dataSource'],
-            'foldersId': [folder['id']],
-            'mailboxId': folder['mailboxId'],
-            'startIndex': 0
-        }
-        folders.append(folder_info)
-    return folders
+        return false
 
 def get_messages(folders):
-    endpoint = 'messages/query'
-    json_data = {
-        'any': [],
-        'folders': folders,
-        'size': 20,
-        'sortFields': ['receivedDateTime:DESC']
-    }
-    response = session.post(base_url + endpoint, json=json_data)    
-    try:
-        response_json = response.json()
-        return response.json()
-    except:
-        print('Unable to convert response to json. Here is the response:')
-        print(response.text)
+    tries = 1
+    while tries <= 3:
+        endpoint = 'messages/query'
+        json_data = {
+            'any': [],
+            'folders': folders,
+            'size': 20,
+            'sortFields': ['receivedDateTime:DESC']
+        }
+        response = session.post(base_url + endpoint, json=json_data)    
+        try:
+            response_json = response.json()
+            return response.json()
+        except:
+            tries += 1
+            time.sleep(1)
+            pass
+    if tries == 3:
+        print('Unable to convert response to json when getting messages after 3 tries. Here is the response:')
+        print(response.text)        
         return False
 
 def get_content(message):

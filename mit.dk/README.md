@@ -6,7 +6,7 @@ This utility lets you set up a task to check your messages at https://mit.dk and
 Requirements
 ============
 * The files in the mit.dk folder in this repository.
-* Python and the packages `seleniumwire` and `requests`.
+* Python and the packages `selenium-wire` and `requests`.
 * A Danish NemID or MitID login for access to mit.dk.
 * A computer with a desktop browser for your first login to mit.dk. The program is set up for Chrome, but can be modified to work with e.g. Firefox.
 * A webdriver to run and monitor your browser from a Python script. If running Chrome, get `chromedriver.exe` from https://chromedriver.chromium.org/ and put it in your PATH or at the same location as your files from this repository.

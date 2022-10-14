@@ -19,7 +19,7 @@ def poll_and_renew_authorization(session):
     set_poll_headers(session)
     poll = session.get('https://auth.post.borger.dk/web/auth/poll')
     if poll.status_code == 204 or poll.status_code == 200:
-        delete_poll_headers(session)
+        set_poll_headers(session)
         return session 
     elif poll.status_code == 401:
         delete_poll_headers(session)

@@ -28,8 +28,9 @@ state = random_string(23)
 nonce = random_string(93)
 code_verifier = random_string(93)
 code_challenge = base64.urlsafe_b64encode(sha256(code_verifier.encode('ascii')).digest()).decode().replace('=','')
+redirect_url = 'https://post.mit.dk/main'
  
-login_url = 'https://gateway.mit.dk/view/client/authorization/login?client_id=view-client-id-mobile-prod-1-id&response_type=code&scope=openid&state=' + state + '&code_challenge=' + code_challenge + '&code_challenge_method=S256&response_mode=query&nonce=' + nonce + '&redirect_uri=com.netcompany.mitdk://nem-callback&deviceName=digitalpost-utilities&deviceId=pc&lang=en_US' 
+login_url = 'https://gateway.mit.dk/view/client/authorization/login?client_id=view-client-id-mobile-prod-1-id&response_type=code&scope=openid&state=' + state + '&code_challenge=' + code_challenge + '&code_challenge_method=S256&response_mode=query&nonce=' + nonce + '&redirect_uri=' + redirect_url + '&deviceName=digitalpost-utilities&deviceId=pc&lang=en_US' 
 
 options = webdriver.ChromeOptions()
 options.add_argument("--log-level=3")
@@ -37,10 +38,21 @@ driver = webdriver.Chrome(chrome_options=options)
 login = driver.get(login_url)
 
 print("Opening browser window. Log in to mit.dk using MitID or NemID in the browser.")
-print("When you see a blank page in your browser at https://nemlog-in.mitid.dk/LoginOption.aspx, you're finished.")
+print("When you see a blank page in your browser, you're finished.")
 input("Press ENTER once you're finished.")
 
 session = requests.Session()
+samlresponse = ''
+
+def get_saml_response(request):
+    if request.response.headers['content-encoding'] == 'gzip':
+        response = gzip.decompress(request.response.body).decode()
+    else:
+        response = request.response.body.decode()
+    soup = BeautifulSoup(response, "html.parser")
+    input = soup.find_all('input', {"name":"SAMLResponse"})
+    samlresponse = input[0]["value"]
+    return samlresponse
 
 for request in driver.requests:
     session.cookies.set('cookiecheck', 'Test', domain='nemlog-in.mitid.dk')
@@ -69,29 +81,31 @@ for request in driver.requests:
                                 expiry_list[11] = '-'
                                 cookie[key]['expires'] = ''.join(expiry_list)
                     session.cookies.update(cookie)
-
+        # User has personal and company login
         if request.method == 'POST' and request.url == 'https://nemlog-in.mitid.dk/LoginOption.aspx' and request.response.status_code == 200:
-            if request.response.headers['content-encoding'] == 'gzip':
-                response = gzip.decompress(request.response.body).decode()
-            else:
-                response = request.response.body.decode()
-            soup = BeautifulSoup(response, "html.parser")
-            input = soup.find_all('input', {"name":"SAMLResponse"})
-            samlresponse = input[0]["value"]
-
+            samlresponse = get_saml_response(request)
+        # User has only personal login and uses mitid
+        if request.method == 'POST' and request.url == 'https://nemlog-in.mitid.dk/login.aspx/mitid' and request.response.status_code == 200:
+            samlresponse = get_saml_response(request)
+         # User has only personal login and uses key card
+        if request.method == 'POST' and request.url == 'https://nemlog-in.mitid.dk/login.aspx/noeglekort' and request.response.status_code == 200:
+            samlresponse = get_saml_response(request)           
+   
 driver.close()
-request_code_part_one = session.post('https://gateway.digitalpost.dk/auth/s9/mit-dk-nemlogin/ssoack', data={'SAMLResponse': samlresponse}, allow_redirects=False)
-request_code_part_one_redirect_location = request_code_part_one.headers['Location']
-request_code_part_two = session.get(request_code_part_one_redirect_location, allow_redirects=False)
-request_code_part_two_redirect_location = request_code_part_two.headers['Location']
-request_code_part_three = session.get(request_code_part_two_redirect_location, allow_redirects=False)
-request_code_part_three_redirect_location = request_code_part_three.headers['Location']
-code_start = request_code_part_three_redirect_location.index('code=') + 5
-code_end = request_code_part_three_redirect_location.index('&', code_start)
-code = request_code_part_three_redirect_location[code_start:code_end]
-redirect_url = 'com.netcompany.mitdk://nem-callback'
-token_url = 'https://gateway.mit.dk/view/client/authorization/token?grant_type=authorization_code&redirect_uri=' + redirect_url + '&client_id=view-client-id-mobile-prod-1-id&code=' + code + '&code_verifier=' + code_verifier
-request_tokens = session.post(token_url)
-save_tokens(request_tokens.text)    
-print('Login to mit.dk went fine.')
-print(f'Tokens saved to {tokens_filename}.')
+if samlresponse:
+    request_code_part_one = session.post('https://gateway.digitalpost.dk/auth/s9/mit-dk-nemlogin/ssoack', data={'SAMLResponse': samlresponse}, allow_redirects=False)
+    request_code_part_one_redirect_location = request_code_part_one.headers['Location']
+    request_code_part_two = session.get(request_code_part_one_redirect_location, allow_redirects=False)
+    request_code_part_two_redirect_location = request_code_part_two.headers['Location']
+    request_code_part_three = session.get(request_code_part_two_redirect_location, allow_redirects=False)
+    request_code_part_three_redirect_location = request_code_part_three.headers['Location']
+    code_start = request_code_part_three_redirect_location.index('code=') + 5
+    code_end = request_code_part_three_redirect_location.index('&', code_start)
+    code = request_code_part_three_redirect_location[code_start:code_end]
+    token_url = 'https://gateway.mit.dk/view/client/authorization/token?grant_type=authorization_code&redirect_uri=' + redirect_url + '&client_id=view-client-id-mobile-prod-1-id&code=' + code + '&code_verifier=' + code_verifier
+    request_tokens = session.post(token_url)
+    save_tokens(request_tokens.text)    
+    print('Login to mit.dk went fine.')
+    print(f'Tokens saved to {tokens_filename}.')
+else:
+    print('Something went wrong during login with MitID or NemID. Did you complete the login procedure?')

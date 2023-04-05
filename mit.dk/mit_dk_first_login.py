@@ -38,8 +38,9 @@ driver = webdriver.Chrome(chrome_options=options)
 login = driver.get(login_url)
 
 print("Opening browser window. Log in to mit.dk using MitID or NemID in the browser.")
-print("When you see a blank page in your browser, you're finished.")
+print("When you see your mit.dk inbox in your browser, you're finished.")
 input("Press ENTER once you're finished.")
+print("Getting your tokens and saving them. This may take a while...")
 
 session = requests.Session()
 samlresponse = ''
@@ -105,7 +106,7 @@ if samlresponse:
     token_url = 'https://gateway.mit.dk/view/client/authorization/token?grant_type=authorization_code&redirect_uri=' + redirect_url + '&client_id=view-client-id-mobile-prod-1-id&code=' + code + '&code_verifier=' + code_verifier
     request_tokens = session.post(token_url)
     save_tokens(request_tokens.text)    
-    print('Login to mit.dk went fine.')
+    print('Tokens successfully saved.')
     print(f'Tokens saved to {tokens_filename}.')
 else:
     print('Something went wrong during login with MitID or NemID. Did you complete the login procedure?')

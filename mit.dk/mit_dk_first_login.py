@@ -83,14 +83,13 @@ for request in driver.requests:
                                 cookie[key]['expires'] = ''.join(expiry_list)
                     session.cookies.update(cookie)
         # User has personal and company login
-        if request.method == 'POST' and request.url == 'https://nemlog-in.mitid.dk/LoginOption.aspx' and request.response.status_code == 200:
+        if request.method == 'POST' and request.url == 'https://nemlog-in.mitid.dk/loginoption' and request.response.status_code == 200:
             samlresponse = get_saml_response(request)
         # User has only personal login and uses mitid
-        if request.method == 'POST' and request.url == 'https://nemlog-in.mitid.dk/login.aspx/mitid' and request.response.status_code == 200:
+        # Unsure about the precise url after login procedure changed due to deprecation of nemid login. If you do not have a company
+        # login and would like to help, please contact me.
+        if request.method == 'POST' and 'https://nemlog-in.mitid.dk/login' in request.url and request.response.status_code == 200:
             samlresponse = get_saml_response(request)
-         # User has only personal login and uses key card
-        if request.method == 'POST' and request.url == 'https://nemlog-in.mitid.dk/login.aspx/noeglekort' and request.response.status_code == 200:
-            samlresponse = get_saml_response(request)           
    
 driver.close()
 if samlresponse:

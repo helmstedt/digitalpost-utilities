@@ -84,12 +84,18 @@ for request in driver.requests:
                     session.cookies.update(cookie)
         # User has personal and company login
         if request.method == 'POST' and request.url == 'https://nemlog-in.mitid.dk/loginoption' and request.response.status_code == 200:
-            samlresponse = get_saml_response(request)
+            try:
+                samlresponse = get_saml_response(request)
+            except:
+                continue
         # User has only personal login and uses mitid
         # Unsure about the precise url after login procedure changed due to deprecation of nemid login. If you do not have a company
         # login and would like to help, please contact me.
         if request.method == 'POST' and 'https://nemlog-in.mitid.dk/login' in request.url and request.response.status_code == 200:
-            samlresponse = get_saml_response(request)
+            try:
+                samlresponse = get_saml_response(request)
+            except:
+                continue
    
 driver.close()
 if samlresponse:

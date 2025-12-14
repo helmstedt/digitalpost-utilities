@@ -5,6 +5,7 @@ mitdk_tokens.json
 mit_dk_tokens.json
 mit_dk_configuration.py
 development/
+*.pickle
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
